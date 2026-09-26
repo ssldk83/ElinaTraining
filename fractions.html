@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sammenlign brøker visuelt og se, hvor stor en del af helheden de fylder.">
+  <title>Forstå brøker · Elinas læringsunivers</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --fill1: #5b8def;
+      --fill2: #f39c5a;
+      --good: #2f855a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 18px 44px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 28px;
+      font-size: 18px;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      border: 1px solid #ececf2;
+
+      display: grid;
+      grid-template-columns: minmax(420px, 1fr) 300px;
+      grid-template-areas:
+        "bar title"
+        "bar meaning"
+        "bar controls";
+      column-gap: 20px;
+      row-gap: 6px;
+      align-items: center;
+    }
+
+    .fraction-title {
+      grid-area: title;
+      text-align: left;
+      font-size: 34px;
+      font-weight: 800;
+      margin: 0;
+      align-self: end;
+    }
+
+    .fraction {
+      display: inline-grid;
+      grid-template-rows: auto auto;
+      line-height: 1;
+      min-width: 48px;
+    }
+
+    .fraction .top {
+      border-bottom: 3px solid currentColor;
+      padding: 0 8px 5px;
+    }
+
+    .fraction .bottom {
+      padding: 5px 8px 0;
+    }
+
+    .bar-shell {
+      grid-area: bar;
+      position: relative;
+      height: 74px;
+      border: 3px solid #30343b;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      margin: 0;
+      cursor: pointer;
+      user-select: none;
+      align-self: center;
+    }
+
+    .fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      transition: width .45s ease;
+    }
+
+    .card:nth-child(1) .fill { background: var(--fill1); }
+    .card:nth-child(2) .fill { background: var(--fill2); }
+
+    .segments {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      pointer-events: none;
+    }
+
+    .segment {
+      border-right: 2px solid rgba(31,41,55,.55);
+    }
+
+    .segment:last-child { border-right: 0; }
+
+    .meaning {
+      grid-area: meaning;
+      text-align: left;
+      font-size: 15px;
+      color: var(--muted);
+      min-height: 0;
+      margin: 0;
+    }
+
+    .controls {
+      grid-area: controls;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+      align-self: start;
+    }
+
+    label {
+      font-size: 14px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+    }
+
+    select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 9px;
+      border: 1px solid var(--line);
+      background: white;
+      font-size: 16px;
+    }
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    .tip {
+      text-align: center;
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    @media (max-width: 780px) {
+      .card {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "title"
+          "bar"
+          "meaning"
+          "controls";
+        gap: 10px;
+      }
+
+      .fraction-title,
+      .meaning {
+        text-align: center;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="shared.css">
+  <script defer src="shared.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Forstå brøker</h1>
+    <div class="subtitle">
+      Se på længden først. Tallene kommer bagefter.
+    </div>
+
+    <section class="compare-row">
+      <div class="card">
+        <div class="fraction-title">
+          <span class="fraction">
+            <span class="top" id="n1Text">4</span>
+            <span class="bottom" id="d1Text">7</span>
+          </span>
+        </div>
+
+        <div class="bar-shell" id="bar1" title="Klik for at afspille igen">
+          <div class="fill" id="fill1"></div>
+          <div class="segments" id="segments1"></div>
+        </div>
+
+        <div class="meaning" id="meaning1"></div>
+
+        <div class="controls">
+          <label>
+            Tæller
+            <select id="n1"></select>
+          </label>
+          <label>
+            Nævner
+            <select id="d1"></select>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="fraction-title">
+          <span class="fraction">
+            <span class="top" id="n2Text">2</span>
+            <span class="bottom" id="d2Text">3</span>
+          </span>
+        </div>
+
+        <div class="bar-shell" id="bar2" title="Klik for at afspille igen">
+          <div class="fill" id="fill2"></div>
+          <div class="segments" id="segments2"></div>
+        </div>
+
+        <div class="meaning" id="meaning2"></div>
+
+        <div class="controls">
+          <label>
+            Tæller
+            <select id="n2"></select>
+          </label>
+          <label>
+            Nævner
+            <select id="d2"></select>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <div class="tip">
+      Tip: Dæk de skrevne brøker med hånden, og sammenlign kun længden på de to bjælker.
+    </div>
+  </main>
+
+  <script>
+    const state = {
+      n1: 4, d1: 7,
+      n2: 2, d2: 3
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function fillSelect(select, min, max, selected) {
+      select.innerHTML = "";
+      for (let i = min; i <= max; i++) {
+        const op = document.createElement("option");
+        op.value = i;
+        op.textContent = i;
+        if (i === selected) op.selected = true;
+        select.appendChild(op);
+      }
+    }
+
+    function drawSegments(container, denominator) {
+      container.innerHTML = "";
+      container.style.gridTemplateColumns = `repeat(${denominator}, 1fr)`;
+      for (let i = 0; i < denominator; i++) {
+        const seg = document.createElement("div");
+        seg.className = "segment";
+        container.appendChild(seg);
+      }
+    }
+
+    function words(n, d) {
+      const names = {
+        2: "halvdele",
+        3: "tredjedele",
+        4: "fjerdedele",
+        5: "femtedele",
+        6: "sjettedele",
+        7: "syvendedele",
+        8: "ottendedele",
+        9: "niendedele",
+        10: "tiendedele",
+        11: "ellevtedele",
+        12: "tolvtedele"
+      };
+      return `${n} af ${d} lige store dele er farvet (${n} ${names[d] || "dele"}).`;
+    }
+
+    function fracHTML(n, d) {
+      return `<span class="fraction"><span class="top">${n}</span><span class="bottom">${d}</span></span>`;
+    }
+
+    function update() {
+      for (const side of [1, 2]) {
+        const n = state["n" + side];
+        const d = state["d" + side];
+        const pct = 100 * n / d;
+
+        $("n" + side + "Text").textContent = n;
+        $("d" + side + "Text").textContent = d;
+        $("fill" + side).style.width = pct + "%";
+        drawSegments($("segments" + side), d);
+        $("meaning" + side).textContent = words(n, d);
+      }
+    }
+
+    function setNumeratorOptions(side) {
+      const d = state["d" + side];
+      const select = $("n" + side);
+      const old = Math.min(state["n" + side], d);
+      fillSelect(select, 1, d, old);
+      state["n" + side] = old;
+    }
+
+    fillSelect($("d1"), 2, 12, state.d1);
+    fillSelect($("d2"), 2, 12, state.d2);
+    fillSelect($("n1"), 1, state.d1, state.n1);
+    fillSelect($("n2"), 1, state.d2, state.n2);
+
+    for (const side of [1, 2]) {
+      $("d" + side).addEventListener("change", e => {
+        state["d" + side] = Number(e.target.value);
+        setNumeratorOptions(side);
+        update();
+      });
+
+      $("n" + side).addEventListener("change", e => {
+        state["n" + side] = Number(e.target.value);
+        update();
+      });
+
+      $("bar" + side).addEventListener("click", () => {
+        const fill = $("fill" + side);
+        fill.style.width = "0%";
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => update());
+        });
+      });
+    }
+
+    
+
+    
+
+    update();
+  </script>
+</body>
+</html>

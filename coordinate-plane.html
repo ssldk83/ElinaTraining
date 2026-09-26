@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Interaktive øvelser i at finde, aflæse og forbinde koordinater.">
+<title>Koordinatplanet · Elinas læringsunivers</title>
+<style>
+  :root{
+    --ink:#183153; --muted:#5d6b7a; --paper:#fbf6ea; --card:#ffffff;
+    --accent:#2f73d8; --good:#218a5a; --warn:#d87825; --line:#d9e1e8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: ui-rounded, "Trebuchet MS", system-ui, sans-serif;
+    color:var(--ink); background:var(--paper); line-height:1.35;
+  }
+  .wrap{max-width:980px;margin:auto;padding:18px}
+  .hero{
+    background:var(--card); border-radius:24px; padding:20px;
+    box-shadow:0 8px 30px rgba(24,49,83,.09); margin-bottom:16px;
+  }
+  h1{margin:0 0 6px;font-size:clamp(26px,5vw,42px)}
+  h2{margin:0 0 10px;font-size:22px}
+  p{margin:7px 0}
+  .tip{
+    margin-top:12px; padding:12px 14px; border-radius:16px;
+    background:#eef5ff; font-weight:700;
+  }
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+  button, select{
+    font:inherit;
+  }
+  .tab, .btn{
+    border:0; border-radius:14px; padding:11px 14px; font-weight:800;
+    cursor:pointer; touch-action:manipulation;
+  }
+  .tab{background:#e7edf4;color:var(--ink)}
+  .tab.active{background:var(--accent);color:#fff}
+  .btn{background:var(--accent);color:white}
+  .btn.secondary{background:#e7edf4;color:var(--ink)}
+  .btn.good{background:var(--good)}
+  .panel{
+    display:none; background:var(--card); border-radius:24px; padding:16px;
+    box-shadow:0 8px 30px rgba(24,49,83,.08);
+  }
+  .panel.active{display:block}
+  .gamegrid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(230px,.65fr);gap:16px;align-items:start}
+  .canvasbox{width:100%;aspect-ratio:1/1;max-width:660px;margin:auto}
+  canvas{width:100%;height:100%;display:block;border:2px solid #c9d5df;border-radius:18px;background:white;touch-action:none}
+  .side{
+    background:#f8fafc;border-radius:18px;padding:14px;min-height:180px
+  }
+  .bigpoint{font-size:32px;font-weight:900;text-align:center;margin:8px 0 12px}
+  .score{font-size:18px;font-weight:800}
+  .feedback{
+    min-height:52px;margin-top:12px;padding:10px;border-radius:14px;background:#f4f7fa;font-weight:800
+  }
+  .feedback.good{background:#e9f8f0;color:#12613d}
+  .feedback.bad{background:#fff0e6;color:#8a430f}
+  .answerrow{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+  select{padding:9px 12px;border-radius:12px;border:1px solid #bfcbd5;background:white;font-weight:800}
+  .lesson{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px
+  }
+  .mini{padding:12px;border-radius:16px;background:#f8fafc}
+  .mini b{display:block;margin-bottom:5px}
+  .coords{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;font-size:14px;word-break:break-word}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:14px;margin-top:8px;color:var(--muted)}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:var(--accent)}
+  .dot.good{background:var(--good)}
+  .celebrate{font-size:34px;text-align:center;display:none;margin-top:8px}
+  @media (max-width:760px){
+    .gamegrid{grid-template-columns:1fr}
+    .lesson{grid-template-columns:1fr}
+    .wrap{padding:10px}
+    .hero,.panel{border-radius:18px}
+  }
+</style>
+<link rel="stylesheet" href="shared.css">
+<script defer src="shared.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>🗺️ Koordinatplanet</h1>
+    <p>Her øver du at finde punkter i et koordinatsystem — ligesom på dit ark.</p>
+    <div class="tip">Huskereglen: <strong>x først, y bagefter</strong> → gå først til siden, og derefter op eller ned.</div>
+
+    <div class="lesson">
+      <div class="mini"><b>1. x-aksen</b>Vandret ↔<br>Positiv mod højre, negativ mod venstre.</div>
+      <div class="mini"><b>2. y-aksen</b>Lodret ↕<br>Positiv opad, negativ nedad.</div>
+      <div class="mini"><b>3. Punktet (3, −2)</b>Gå 3 til højre og 2 ned. Sæt punktet dér.</div>
+    </div>
+  </section>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="find">🎯 Find punktet</button>
+    <button class="tab" data-tab="read">👀 Læs punktet</button>
+    <button class="tab" data-tab="connect">✏️ Forbind punkterne</button>
+  </div>
+
+  <section class="panel active" id="find">
+    <div class="gamegrid">
+      <div class="canvasbox"><canvas id="findCanvas"></canvas></div>
+      <div class="side">
+        <h2>Find punktet</h2>
+        <p>Klik på det rigtige sted:</p>
+        <div class="bigpoint" id="findTarget">(3, −2)</div>
+        <div class="score" id="findScore">⭐ 0 point</div>
+        <div class="feedback" id="findFeedback">Prøv selv. Du får en ny opgave, når du rammer rigtigt.</div>
+        <button class="btn secondary" id="findNew" style="margin-top:10px">Ny opgave</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="read">
+    <div class="gamegrid">
+      <div class="canvasbox"><canvas id="readCanvas"></canvas></div>
+      <div class="side">
+        <h2>Læs punktet</h2>
+        <p>Hvilke koordinater har det blå punkt?</p>
+        <div class="answerrow">
+          <span>(</span><select id="xAns"></select><span>,</span><select id="yAns"></select><span>)</span>
+        </div>
+        <button class="btn" id="checkRead" style="width:100%;margin-top:12px">Tjek svar</button>
+        <div class="score" id="readScore" style="margin-top:12px">⭐ 0 point</div>
+        <div class="feedback" id="readFeedback">Se først på x, og derefter på y.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="connect">
+    <div class="gamegrid">
+      <div class="canvasbox"><canvas id="connectCanvas"></canvas></div>
+      <div class="side">
+        <h2>Forbind punkterne</h2>
+        <p>Klik på punkterne <strong>i rækkefølge</strong>. Appen tegner stregen for dig.</p>
+        <div class="answerrow" style="justify-content:flex-start">
+          <button class="btn secondary" id="newConnect">Ny opgave</button>
+        </div>
+        <p class="coords" id="coordList"></p>
+        <p><strong>Næste punkt:</strong> <span id="nextPoint"></span></p>
+        <div class="feedback" id="connectFeedback">Start med det første punkt.</div>
+        <button class="btn secondary" id="resetConnect" style="margin-top:10px">Start forfra</button>
+        <div class="celebrate" id="celebrate">🎉 ⭐ 🎉</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const MIN=-10, MAX=10, RANGE=MAX-MIN;
+const dpr=()=>window.devicePixelRatio||1;
+
+function setupCanvas(canvas){
+  const rect=canvas.getBoundingClientRect(), ratio=dpr();
+  canvas.width=Math.round(rect.width*ratio);
+  canvas.height=Math.round(rect.height*ratio);
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+  return {ctx,w:rect.width,h:rect.height};
+}
+function ptToPx(x,y,w,h){
+  const pad=28, gw=w-2*pad, gh=h-2*pad;
+  return {
+    px: pad+(x-MIN)/RANGE*gw,
+    py: pad+(MAX-y)/RANGE*gh,
+    pad,gw,gh
+  };
+}
+function drawGrid(canvas, point=null, lines=[]){
+  const {ctx,w,h}=setupCanvas(canvas);
+  ctx.clearRect(0,0,w,h);
+  const pad=28, gw=w-2*pad, gh=h-2*pad;
+  ctx.font='11px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
+
+  for(let v=MIN; v<=MAX; v++){
+    let a=ptToPx(v,0,w,h), b=ptToPx(0,v,w,h);
+    ctx.beginPath(); ctx.strokeStyle=(v===0?'#183153':'#dbe3ea'); ctx.lineWidth=(v===0?2:1);
+    ctx.moveTo(a.px,pad); ctx.lineTo(a.px,pad+gh); ctx.stroke();
+    ctx.beginPath(); ctx.strokeStyle=(v===0?'#183153':'#dbe3ea'); ctx.lineWidth=(v===0?2:1);
+    ctx.moveTo(pad,b.py); ctx.lineTo(pad+gw,b.py); ctx.stroke();
+  }
+
+  for(let v=MIN; v<=MAX; v++){
+    if(v===0) continue;
+    let xv=ptToPx(v,0,w,h), yv=ptToPx(0,v,w,h);
+    ctx.fillStyle='#617184';
+    ctx.fillText(v, xv.px, ptToPx(0,0,w,h).py+12);
+    ctx.fillText(v, ptToPx(0,0,w,h).px-13, yv.py);
+  }
+  ctx.fillStyle='#183153'; ctx.font='bold 14px system-ui';
+  ctx.fillText('x',pad+gw-3,ptToPx(0,0,w,h).py-12);
+  ctx.fillText('y',ptToPx(0,0,w,h).px+12,pad+5);
+
+  if(lines.length){
+    ctx.beginPath(); ctx.strokeStyle='#218a5a'; ctx.lineWidth=4; ctx.lineJoin='round'; ctx.lineCap='round';
+    lines.forEach((p,i)=>{
+      const q=ptToPx(p[0],p[1],w,h);
+      i?ctx.lineTo(q.px,q.py):ctx.moveTo(q.px,q.py);
+    });
+    ctx.stroke();
+    lines.forEach(p=>{
+      const q=ptToPx(p[0],p[1],w,h);
+      ctx.beginPath();ctx.fillStyle='#218a5a';ctx.arc(q.px,q.py,6,0,Math.PI*2);ctx.fill();
+    });
+  }
+  if(point){
+    const q=ptToPx(point[0],point[1],w,h);
+    ctx.beginPath();ctx.fillStyle='#2f73d8';ctx.arc(q.px,q.py,8,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.arc(q.px,q.py,8,0,Math.PI*2);ctx.stroke();
+  }
+}
+function canvasCoord(canvas, ev){
+  const rect=canvas.getBoundingClientRect();
+  const clientX=ev.touches?ev.touches[0].clientX:ev.clientX;
+  const clientY=ev.touches?ev.touches[0].clientY:ev.clientY;
+  const xpx=clientX-rect.left, ypx=clientY-rect.top;
+  const pad=28, gw=rect.width-2*pad, gh=rect.height-2*pad;
+  let x=Math.round(MIN+(xpx-pad)/gw*RANGE);
+  let y=Math.round(MAX-(ypx-pad)/gh*RANGE);
+  x=Math.max(MIN,Math.min(MAX,x)); y=Math.max(MIN,Math.min(MAX,y));
+  return [x,y];
+}
+const fmt=n=>String(n).replace('-', '−');
+const pair=p=>`(${fmt(p[0])}, ${fmt(p[1])})`;
+const rnd=()=>Math.floor(Math.random()*19)-9;
+
+// tabs
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.tab).classList.add('active');
+  redrawAll();
+}));
+
+// Find point
+const findCanvas=document.getElementById('findCanvas');
+let findTarget=[3,-2], findScore=0, findShown=null;
+function newFind(){
+  do{findTarget=[rnd(),rnd()]}while(findTarget[0]===0 && findTarget[1]===0);
+  findShown=null;
+  document.getElementById('findTarget').textContent=pair(findTarget);
+  const f=document.getElementById('findFeedback'); f.className='feedback'; f.textContent='x først, y bagefter.';
+  drawGrid(findCanvas);
+}
+findCanvas.addEventListener('click',e=>{
+  const got=canvasCoord(findCanvas,e); findShown=got;
+  const f=document.getElementById('findFeedback');
+  if(got[0]===findTarget[0] && got[1]===findTarget[1]){
+    findScore++; document.getElementById('findScore').textContent=`⭐ ${findScore} point`;
+    f.className='feedback good'; f.textContent=`Ja! ${pair(got)} er helt rigtigt. 🌟`;
+    drawGrid(findCanvas,got);
+    setTimeout(newFind,850);
+  }else{
+    f.className='feedback bad';
+    const dx=findTarget[0]-got[0], dy=findTarget[1]-got[1];
+    let hint=[];
+    if(dx) hint.push(dx>0?`gå ${Math.abs(dx)} mod højre`:`gå ${Math.abs(dx)} mod venstre`);
+    if(dy) hint.push(dy>0?`gå ${Math.abs(dy)} op`:`gå ${Math.abs(dy)} ned`);
+    f.textContent=`Du klikkede ${pair(got)}. Prøv igen: ${hint.join(' og ')}.`;
+    drawGrid(findCanvas,got);
+  }
+});
+document.getElementById('findNew').onclick=newFind;
+
+// Read point
+const readCanvas=document.getElementById('readCanvas');
+let readPoint=[-4,5], readScore=0;
+for(const id of ['xAns','yAns']){
+  const s=document.getElementById(id);
+  for(let i=MIN;i<=MAX;i++){const o=document.createElement('option');o.value=i;o.textContent=fmt(i);s.appendChild(o);}
+  s.value=0;
+}
+function newRead(){
+  do{readPoint=[rnd(),rnd()]}while(readPoint[0]===0 && readPoint[1]===0);
+  document.getElementById('xAns').value=0; document.getElementById('yAns').value=0;
+  const f=document.getElementById('readFeedback'); f.className='feedback'; f.textContent='Find først x på den vandrette akse.';
+  drawGrid(readCanvas,readPoint);
+}
+document.getElementById('checkRead').onclick=()=>{
+  const x=+document.getElementById('xAns').value, y=+document.getElementById('yAns').value;
+  const f=document.getElementById('readFeedback');
+  if(x===readPoint[0] && y===readPoint[1]){
+    readScore++; document.getElementById('readScore').textContent=`⭐ ${readScore} point`;
+    f.className='feedback good'; f.textContent=`Perfekt! Punktet er ${pair(readPoint)}. 🌟`;
+    setTimeout(newRead,900);
+  }else{
+    f.className='feedback bad';
+    if(x!==readPoint[0]) f.textContent='Se på x først: Hvor langt til venstre eller højre ligger punktet?';
+    else f.textContent='x er rigtig. Se nu på y: Hvor langt op eller ned ligger punktet?';
+  }
+};
+
+// Connect points – a new exercise is generated after every solved path
+const connectTemplates=[
+  [[-3,-2],[-3,2],[0,5],[3,2],[3,-2],[-3,-2]],
+  [[-4,0],[-2,3],[1,4],[4,1],[2,-3],[-1,-4],[-4,0]],
+  [[-4,-3],[-4,3],[0,5],[4,3],[4,-3],[0,-1],[-4,-3]],
+  [[-5,0],[-2,4],[0,1],[2,4],[5,0],[2,-4],[0,-1],[-2,-4],[-5,0]],
+  [[-4,-2],[-2,3],[0,-1],[2,3],[4,-2],[0,-5],[-4,-2]],
+  [[-5,3],[-2,3],[-2,0],[1,0],[1,-3],[5,-3]]
+];
+const connectCanvas=document.getElementById('connectCanvas');
+let currentChallenge=[], progress=[], lastConnectSignature='';
+
+function makeConnectChallenge(){
+  let arr, signature;
+  do{
+    const base=connectTemplates[Math.floor(Math.random()*connectTemplates.length)];
+    const sx=Math.random()<.5?-1:1, sy=Math.random()<.5?-1:1;
+    const transformed=base.map(([x,y])=>[x*sx,y*sy]);
+    const xs=transformed.map(p=>p[0]), ys=transformed.map(p=>p[1]);
+    const minX=Math.min(...xs), maxX=Math.max(...xs), minY=Math.min(...ys), maxY=Math.max(...ys);
+    const dxMin=-9-minX, dxMax=9-maxX, dyMin=-9-minY, dyMax=9-maxY;
+    const dx=dxMin+Math.floor(Math.random()*(dxMax-dxMin+1));
+    const dy=dyMin+Math.floor(Math.random()*(dyMax-dyMin+1));
+    arr=transformed.map(([x,y])=>[x+dx,y+dy]);
+    signature=arr.map(p=>p.join(',')).join('|');
+  }while(signature===lastConnectSignature);
+  lastConnectSignature=signature;
+  return arr;
+}
+
+function newConnectChallenge(){
+  currentChallenge=makeConnectChallenge();
+  loadChallenge();
+}
+
+function loadChallenge(){
+  progress=[];
+  const arr=currentChallenge;
+  document.getElementById('coordList').textContent=arr.map(pair).join(' → ');
+  document.getElementById('nextPoint').textContent=pair(arr[0]);
+  const f=document.getElementById('connectFeedback'); f.className='feedback'; f.textContent='Start med det første punkt.';
+  document.getElementById('celebrate').style.display='none';
+  drawGrid(connectCanvas,null,progress);
+}
+connectCanvas.addEventListener('click',e=>{
+  const got=canvasCoord(connectCanvas,e), arr=currentChallenge, need=arr[progress.length];
+  if(!need) return;
+  const f=document.getElementById('connectFeedback');
+  if(got[0]===need[0] && got[1]===need[1]){
+    progress.push(got); drawGrid(connectCanvas,null,progress);
+    if(progress.length===arr.length){
+      f.className='feedback good'; f.textContent='Færdig! Flot! En ny opgave kommer om et øjeblik. 🌟';
+      document.getElementById('nextPoint').textContent='Færdig';
+      document.getElementById('celebrate').style.display='block';
+      setTimeout(newConnectChallenge,1200);
+    }else{
+      f.className='feedback good'; f.textContent='Rigtigt! Find nu det næste punkt.';
+      document.getElementById('nextPoint').textContent=pair(arr[progress.length]);
+    }
+  }else{
+    f.className='feedback bad';
+    f.textContent=`Næsten. Du klikkede ${pair(got)}, men næste punkt er ${pair(need)}.`;
+  }
+});
+document.getElementById('newConnect').onclick=newConnectChallenge;
+document.getElementById('resetConnect').onclick=loadChallenge;
+
+function redrawAll(){
+  drawGrid(findCanvas,findShown);
+  drawGrid(readCanvas,readPoint);
+  drawGrid(connectCanvas,null,progress);
+}
+window.addEventListener('resize',redrawAll);
+newFind(); newRead(); newConnectChallenge();
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+:root {
+  --learning-bg: #f6f4ff;
+  --learning-surface: #ffffff;
+  --learning-ink: #1f2544;
+  --learning-muted: #667085;
+  --learning-primary: #6557d9;
+  --learning-primary-dark: #4c3fc0;
+  --learning-primary-soft: #eeebff;
+  --learning-accent: #f3a712;
+  --learning-success: #15966b;
+  --learning-danger: #d84c5f;
+  --learning-line: #ded9f2;
+  --learning-shadow: 0 14px 35px rgba(43, 35, 92, .09);
+
+  /* Map the original apps' variables onto one shared visual system. */
+  --bg: var(--learning-bg);
+  --paper: var(--learning-bg);
+  --card: var(--learning-surface);
+  --ink: var(--learning-ink);
+  --text: var(--learning-ink);
+  --muted: var(--learning-muted);
+  --line: var(--learning-line);
+  --accent: var(--learning-primary);
+  --accent-soft: var(--learning-primary-soft);
+  --purple: var(--learning-primary);
+  --purple2: #8d80ea;
+  --blue: var(--learning-primary);
+  --good: var(--learning-success);
+  --ok: var(--learning-success);
+  --bad: var(--learning-danger);
+  --red: var(--learning-danger);
+  --yellow: #ffd76a;
+  --fill1: var(--learning-primary);
+  --fill2: var(--learning-accent);
+  --shadow: var(--learning-shadow);
+}
+
+html { color-scheme: light; }
+
+body {
+  min-height: 100vh;
+  color: var(--learning-ink);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(243, 167, 18, .15), transparent 25rem),
+    radial-gradient(circle at 92% 5%, rgba(101, 87, 217, .16), transparent 28rem),
+    var(--learning-bg);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+button, select, input { font: inherit; }
+
+button, a { -webkit-tap-highlight-color: transparent; }
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(101, 87, 217, .32);
+  outline-offset: 3px;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: block;
+  padding: 0;
+  border-bottom: 1px solid rgba(222, 217, 242, .85);
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 7px 24px rgba(43, 35, 92, .06);
+  backdrop-filter: blur(14px);
+}
+
+.site-header__inner {
+  width: min(1120px, calc(100% - 28px));
+  margin: 0 auto;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.site-brand {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--learning-ink);
+  text-decoration: none;
+  font-weight: 850;
+  letter-spacing: -.02em;
+}
+
+.site-brand__mark {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(145deg, var(--learning-primary), #8a7bea);
+  box-shadow: 0 7px 16px rgba(101, 87, 217, .25);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 8px 2px;
+}
+
+.site-nav::-webkit-scrollbar { display: none; }
+
+.site-nav a {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border-radius: 12px;
+  color: #5b6174;
+  text-decoration: none;
+  font-size: .9rem;
+  font-weight: 750;
+}
+
+.site-nav a:hover { background: #f4f2ff; color: var(--learning-primary-dark); }
+
+.site-nav a[aria-current="page"] {
+  color: var(--learning-primary-dark);
+  background: var(--learning-primary-soft);
+}
+
+.site-header__age {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #745306;
+  background: #fff3cb;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+/* Shared surfaces and controls across the five original apps. */
+.card, .panel, .scorebox, .score {
+  border-color: var(--learning-line) !important;
+  box-shadow: var(--learning-shadow) !important;
+}
+
+.card, .panel { border-radius: 22px !important; }
+
+.btn, button.primary, button#checkBtn {
+  background: var(--learning-primary);
+  color: #fff;
+}
+
+.tab.active, .tabs button.on {
+  background: var(--learning-primary) !important;
+  color: #fff !important;
+}
+
+.site-footer {
+  width: min(980px, calc(100% - 32px));
+  margin: 28px auto 0;
+  padding: 22px 0 30px;
+  border-top: 1px solid var(--learning-line);
+  color: var(--learning-muted);
+  text-align: center;
+  font-size: .9rem;
+}
+
+.site-footer a { color: var(--learning-primary-dark); font-weight: 750; }
+
+@media (max-width: 850px) {
+  .site-header__inner { align-items: flex-start; flex-wrap: wrap; gap: 0 12px; padding-top: 9px; }
+  .site-nav { order: 3; width: 100%; }
+  .site-header__age { align-self: center; }
+}
+
+@media (max-width: 520px) {
+  .site-header__inner { width: min(100% - 20px, 1120px); }
+  .site-brand__text { font-size: .92rem; }
+  .site-header__age { display: none; }
+  .site-nav a { padding: 8px 10px; font-size: .84rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}

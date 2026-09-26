@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Øv decimaladdition i kolonner, ét ciffer ad gangen.">
+<title>Decimaladdition · Elinas læringsunivers</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --ink:#202938;
+    --muted:#6b7280;
+    --line:#d7deea;
+    --accent:#4f46e5;
+    --accent-soft:#eef2ff;
+    --ok:#15803d;
+    --bad:#c62828;
+    --shadow:0 10px 30px rgba(31,41,55,.08);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(circle at top left, #ffffff 0, #f7f8fc 35%, #f2f4f8 100%);
+    color:var(--ink);
+  }
+
+  .app{
+    max-width:760px;
+    margin:0 auto;
+    padding:18px;
+  }
+
+  .header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    margin-bottom:14px;
+  }
+
+  h1{
+    margin:0;
+    font-size:clamp(26px,5vw,40px);
+    line-height:1.1;
+  }
+
+  .subtitle{
+    margin-top:6px;
+    color:var(--muted);
+    font-size:15px;
+  }
+
+  .score{
+    white-space:nowrap;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:10px 12px;
+    box-shadow:var(--shadow);
+    font-weight:700;
+    font-size:14px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+
+  select,button,input{
+    font:inherit;
+  }
+
+  select,button{
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    padding:10px 12px;
+  }
+
+  button{
+    cursor:pointer;
+    font-weight:700;
+  }
+
+  button.primary{
+    background:var(--accent);
+    color:white;
+    border-color:var(--accent);
+  }
+
+  button.ghost{
+    background:#f8fafc;
+  }
+
+  button:active{
+    transform:translateY(1px);
+  }
+
+  .exerciseTitle{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:4px;
+  }
+
+  .equation{
+    text-align:center;
+    font-weight:900;
+    font-size:clamp(32px,7vw,52px);
+    margin:2px 0 18px;
+    letter-spacing:.5px;
+  }
+
+  .columnWrap{
+    display:flex;
+    justify-content:center;
+    overflow-x:auto;
+    padding:4px 0;
+  }
+
+  .column{
+    width:min(560px,100%);
+    background:#fbfdff;
+    border:2px solid var(--line);
+    border-radius:20px;
+    padding:16px 18px 18px;
+  }
+
+  .labels,
+  .row{
+    display:grid;
+    grid-template-columns:42px 74px 74px 34px 74px 74px;
+    gap:6px;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .labels{
+    color:var(--muted);
+    font-size:11px;
+    text-align:center;
+    margin-bottom:4px;
+  }
+
+  .carryRow{
+    min-height:44px;
+  }
+
+  .carryRow input{
+    width:38px;
+    height:32px;
+    justify-self:center;
+    text-align:center;
+    border:2px dashed #a7b1ff;
+    border-radius:9px;
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-weight:900;
+    font-size:18px;
+  }
+
+  .numberRow{
+    min-height:58px;
+    font-size:35px;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+  }
+
+  .digit,.comma,.sign{
+    text-align:center;
+  }
+
+  .sign{
+    font-size:28px;
+  }
+
+  .comma{
+    font-size:36px;
+    font-weight:900;
+  }
+
+  .rule{
+    height:3px;
+    background:var(--ink);
+    border-radius:999px;
+    width:392px;
+    max-width:100%;
+    margin:8px auto 12px;
+  }
+
+  .answerRow input{
+    width:60px;
+    height:60px;
+    justify-self:center;
+    text-align:center;
+    border:2px solid #96a0af;
+    border-radius:12px;
+    background:white;
+    font-size:32px;
+    font-weight:900;
+  }
+
+  .answerRow input:focus,
+  .carryRow input:focus{
+    outline:4px solid rgba(79,70,229,.12);
+    border-color:var(--accent);
+  }
+
+  .comma.answerComma{
+    font-size:38px;
+  }
+
+  .actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:16px;
+  }
+
+  .feedback{
+    min-height:32px;
+    margin-top:10px;
+    text-align:center;
+    font-weight:800;
+    font-size:18px;
+  }
+
+  .coach{
+    margin-top:14px;
+    border-radius:14px;
+    background:#f8fafc;
+    border:1px solid var(--line);
+    padding:11px 13px;
+    color:#374151;
+    font-size:14px;
+  }
+
+  .coach strong{
+    color:var(--accent);
+  }
+
+  .progress{
+    height:10px;
+    background:#e7eaf0;
+    border-radius:999px;
+    overflow:hidden;
+    margin-top:16px;
+  }
+
+  .progress > div{
+    height:100%;
+    width:0;
+    background:var(--ok);
+    transition:.25s;
+  }
+
+  .celebrate{
+    animation:pop .35s ease;
+  }
+
+  @keyframes pop{
+    0%{transform:scale(.96)}
+    60%{transform:scale(1.03)}
+    100%{transform:scale(1)}
+  }
+
+  @media (max-width:640px){
+    .app{padding:12px}
+    .card{padding:14px}
+    .header{align-items:center}
+    .labels,.row{
+      grid-template-columns:34px 58px 58px 28px 58px 58px;
+      gap:4px;
+    }
+    .answerRow input{
+      width:50px;
+      height:54px;
+      font-size:28px;
+    }
+    .numberRow{font-size:30px}
+    .column{padding:14px 10px 16px}
+  }
+</style>
+<link rel="stylesheet" href="shared.css">
+<script defer src="shared.js"></script>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>Decimaladdition i kolonne</h1>
+      <div class="subtitle">Regn som i din matematikbog – ét ciffer ad gangen.</div>
+    </div>
+    <div class="score" id="score">0 klaret</div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <select id="exerciseSelect"></select>
+      <div>
+        <button id="prevBtn" class="ghost">←</button>
+        <button id="nextBtn" class="ghost">→</button>
+      </div>
+    </div>
+
+    <div class="exerciseTitle">Opgaven</div>
+    <div class="equation" id="equation"></div>
+
+    <div class="columnWrap">
+      <div class="column" id="columnCard">
+        <div class="labels">
+          <div></div>
+          <div>10'ere</div>
+          <div>1'ere</div>
+          <div></div>
+          <div>0,1</div>
+          <div>0,01</div>
+        </div>
+
+        <div class="row carryRow">
+          <div></div>
+          <input id="carryTens" maxlength="1" inputmode="numeric" aria-label="mente over tiere">
+          <input id="carryOnes" maxlength="1" inputmode="numeric" aria-label="mente over enere">
+          <div></div>
+          <input id="carryTenths" maxlength="1" inputmode="numeric" aria-label="mente over tiendedele">
+          <div></div>
+        </div>
+
+        <div class="row numberRow" id="rowA"></div>
+        <div class="row numberRow" id="rowB"></div>
+
+        <div class="rule"></div>
+
+        <div class="row answerRow">
+          <div></div>
+          <input id="ansTens" maxlength="1" inputmode="numeric" aria-label="svar tiere">
+          <input id="ansOnes" maxlength="1" inputmode="numeric" aria-label="svar enere">
+          <div class="comma answerComma">,</div>
+          <input id="ansTenths" maxlength="1" inputmode="numeric" aria-label="svar tiendedele">
+          <input id="ansHundredths" maxlength="1" inputmode="numeric" aria-label="svar hundrededele">
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="checkBtn" class="primary">Tjek mit svar</button>
+      <button id="hintBtn">Hint</button>
+      <button id="clearBtn" class="ghost">Ryd</button>
+      <button id="newBtn" class="ghost">Ny opgave</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="coach" id="coach">
+      <strong>Start her:</strong> regn hundrededelene helt til højre først.
+    </div>
+
+    <div class="progress"><div id="progressBar"></div></div>
+  </div>
+</div>
+
+<script>
+const bookExercises = [
+  [18.95, 6.56],
+  [26.18, 12.48],
+  [38.60, 4.95],
+  [8.96, 12.35],
+  [28.50, 20.65],
+  [18.42, 27.90],
+  [29.06, 17.95],
+  [13.45, 17.85],
+  [19.41, 28.90]
+];
+
+let exercises = [...bookExercises];
+let current = 0;
+let solved = new Set();
+
+const $ = s => document.querySelector(s);
+const cents = n => Math.round(n * 100);
+const fmt = n => n.toFixed(2).replace('.', ',');
+
+function digits(n){
+  const c = cents(n);
+  return {
+    tens: Math.floor(c/1000)%10,
+    ones: Math.floor(c/100)%10,
+    tenths: Math.floor(c/10)%10,
+    hundredths: c%10
+  };
+}
+
+function fillSelect(){
+  const sel = $('#exerciseSelect');
+  sel.innerHTML = '';
+  exercises.forEach((e,i)=>{
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `${i+1}. ${fmt(e[0])} + ${fmt(e[1])}`;
+    sel.appendChild(option);
+  });
+  sel.value = current;
+}
+
+function numberRowHTML(d, second=false){
+  return `
+    <div class="sign">${second ? '+' : ''}</div>
+    <div class="digit">${d.tens}</div>
+    <div class="digit">${d.ones}</div>
+    <div class="comma">,</div>
+    <div class="digit">${d.tenths}</div>
+    <div class="digit">${d.hundredths}</div>
+  `;
+}
+
+function clearInputs(){
+  ['carryTens','carryOnes','carryTenths','ansTens','ansOnes','ansTenths','ansHundredths']
+    .forEach(id => $('#'+id).value = '');
+  $('#feedback').textContent = '';
+  $('#coach').innerHTML = '<strong>Start her:</strong> regn hundrededelene helt til højre først.';
+}
+
+function render(){
+  const [a,b] = exercises[current];
+  const da = digits(a);
+  const db = digits(b);
+
+  fillSelect();
+  $('#equation').textContent = `${fmt(a)} + ${fmt(b)}`;
+  $('#rowA').innerHTML = numberRowHTML(da,false);
+  $('#rowB').innerHTML = numberRowHTML(db,true);
+  clearInputs();
+  updateProgress();
+  bindInputs();
+}
+
+function updateProgress(){
+  $('#score').textContent = `${solved.size} klaret`;
+  $('#progressBar').style.width = `${Math.round((solved.size/exercises.length)*100)}%`;
+}
+
+function readDigit(id){
+  const v = $('#'+id).value.trim();
+  return /^[0-9]$/.test(v) ? Number(v) : null;
+}
+
+function expectedCarries(a,b){
+  const da=digits(a), db=digits(b);
+  const h = da.hundredths + db.hundredths;
+  const carryToTenths = h >= 10 ? 1 : 0;
+
+  const t = da.tenths + db.tenths + carryToTenths;
+  const carryToOnes = t >= 10 ? 1 : 0;
+
+  const o = da.ones + db.ones + carryToOnes;
+  const carryToTens = o >= 10 ? 1 : 0;
+
+  return {carryToTenths, carryToOnes, carryToTens};
+}
+
+function check(){
+  const [a,b] = exercises[current];
+  const result = (cents(a)+cents(b))/100;
+  const d = digits(result);
+
+  const entered = {
+    tens: readDigit('ansTens'),
+    ones: readDigit('ansOnes'),
+    tenths: readDigit('ansTenths'),
+    hundredths: readDigit('ansHundredths')
+  };
+
+  if(Object.values(entered).some(v => v === null)){
+    $('#feedback').style.color = 'var(--bad)';
+    $('#feedback').textContent = 'Udfyld alle fire svarbokse.';
+    return;
+  }
+
+  if(
+    entered.tens===d.tens &&
+    entered.ones===d.ones &&
+    entered.tenths===d.tenths &&
+    entered.hundredths===d.hundredths
+  ){
+    solved.add(current);
+    $('#feedback').style.color = 'var(--ok)';
+    $('#feedback').textContent = `Rigtigt! ${fmt(result)} 🎉`;
+    $('#coach').innerHTML = '<strong>Godt:</strong> du holdt kommaet på samme plads og regnede fra højre mod venstre.';
+    $('#columnCard').classList.remove('celebrate');
+    void $('#columnCard').offsetWidth;
+    $('#columnCard').classList.add('celebrate');
+    updateProgress();
+  }else{
+    $('#feedback').style.color = 'var(--bad)';
+    $('#feedback').textContent = 'Ikke helt. Tjek kolonnerne fra højre.';
+    smartCoach(a,b);
+  }
+}
+
+function smartCoach(a,b){
+  const da = digits(a), db = digits(b);
+  const carries = expectedCarries(a,b);
+
+  const h = da.hundredths + db.hundredths;
+  const t = da.tenths + db.tenths + carries.carryToTenths;
+  const o = da.ones + db.ones + carries.carryToOnes;
+
+  const ah = readDigit('ansHundredths');
+  const at = readDigit('ansTenths');
+  const ao = readDigit('ansOnes');
+
+  if(ah !== h%10){
+    $('#coach').innerHTML = `<strong>Hundrededele:</strong> ${da.hundredths} + ${db.hundredths} = ${h}. Skriv ${h%10} nederst${h>=10 ? ' og giv 1 videre' : ''}.`;
+    return;
+  }
+
+  if(at !== t%10){
+    $('#coach').innerHTML = `<strong>Tiendedele:</strong> ${da.tenths} + ${db.tenths}${carries.carryToTenths ? ' + 1' : ''} = ${t}. Skriv ${t%10} nederst${t>=10 ? ' og giv 1 videre' : ''}.`;
+    return;
+  }
+
+  if(ao !== o%10){
+    $('#coach').innerHTML = `<strong>Enere:</strong> ${da.ones} + ${db.ones}${carries.carryToOnes ? ' + 1' : ''} = ${o}.`;
+    return;
+  }
+
+  $('#coach').innerHTML = '<strong>Næsten færdig:</strong> tjek tier-kolonnen helt til venstre.';
+}
+
+function hint(){
+  const [a,b] = exercises[current];
+  const da=digits(a), db=digits(b);
+  const h=da.hundredths+db.hundredths;
+
+  if(h>=10){
+    $('#coach').innerHTML = `<strong>Hint:</strong> ${da.hundredths} + ${db.hundredths} = ${h}. Skriv ${h%10} i hundrededelene og skriv 1 i den lille boks over tiendedelene.`;
+  }else{
+    $('#coach').innerHTML = `<strong>Hint:</strong> ${da.hundredths} + ${db.hundredths} = ${h}. Skriv ${h} i hundrededelsboksen.`;
+  }
+}
+
+function bindInputs(){
+  const ids = ['carryTens','carryOnes','carryTenths','ansTens','ansOnes','ansTenths','ansHundredths'];
+
+  ids.forEach((id,index)=>{
+    const el = $('#'+id);
+    el.oninput = ()=>{
+      el.value = el.value.replace(/\D/g,'').slice(0,1);
+    };
+    el.onkeydown = e=>{
+      if(e.key==='Enter'){
+        check();
+        return;
+      }
+      if(e.key==='ArrowRight' && index<ids.length-1){
+        e.preventDefault();
+        $('#'+ids[index+1]).focus();
+      }
+      if(e.key==='ArrowLeft' && index>0){
+        e.preventDefault();
+        $('#'+ids[index-1]).focus();
+      }
+    };
+  });
+}
+
+$('#checkBtn').addEventListener('click',check);
+$('#hintBtn').addEventListener('click',hint);
+$('#clearBtn').addEventListener('click',clearInputs);
+
+$('#prevBtn').addEventListener('click',()=>{
+  current=(current-1+exercises.length)%exercises.length;
+  render();
+});
+
+$('#nextBtn').addEventListener('click',()=>{
+  current=(current+1)%exercises.length;
+  render();
+});
+
+$('#exerciseSelect').addEventListener('change',e=>{
+  current=Number(e.target.value);
+  render();
+});
+
+$('#newBtn').addEventListener('click',()=>{
+  const a=Math.round((5+Math.random()*35)*100)/100;
+  const b=Math.round((4+Math.random()*25)*100)/100;
+  exercises.push([a,b]);
+  current=exercises.length-1;
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
