@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Lær at løse ligninger med visuelle forklaringer, træning og hverdagsopgaver.">
 <title>Ligningslaboratoriet · Elinas læringsunivers</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
 :root{
   --bg:#fff8e7; --card:#ffffff; --ink:#2d3142; --muted:#6f7585;
@@ -327,8 +328,10 @@ function checkPractice(i){
   const value=Number(String(input.value).replace(',','.'));
   if(input.value.trim()===''){ fb.innerHTML='<span class="bad">Skriv et tal først 🙂</span>'; return; }
   if(value===p.ans){
+    const firstTime=!earned[k];
     fb.innerHTML=`<span class="ok">✅ Ja! ${p.q.split('=')[0].trim()} bliver ${p.q.split('=')[1].trim()}.</span>`;
     earned[k]=true; save(); input.style.borderColor='var(--green)';
+    if(firstTime) window.LearningUniverse?.earnStar('equation-lab','Ligningen er løst!');
   }else{
     fb.innerHTML='<span class="bad">Ikke helt. Prøv at spørge: “Hvilket tal mangler?”</span>';
     input.style.borderColor='var(--red)';
@@ -364,9 +367,11 @@ function chooseStory(i,j){
   const chosen=document.getElementById(`choice-${i}-${j}`);
   const fb=document.getElementById('storyfb-'+i);
   if(j===s.correct){
+    const firstTime=!earned[k];
     chosen.classList.add('correct');
     fb.innerHTML=`<span class="ok">✅ Korrekt ligning. Og løsningen er <b>${s.solve}</b>.</span>`;
     earned[k]=true; save();
+    if(firstTime) window.LearningUniverse?.earnStar('equation-lab','Historien blev til en ligning!');
   }else{
     chosen.classList.add('wrong');
     fb.innerHTML='<span class="bad">Prøv igen. Hvad sker der med tallet i historien?</span>';

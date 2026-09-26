@@ -38,6 +38,8 @@
 html { color-scheme: light; }
 
 body {
+  --page-accent: var(--learning-primary);
+  --page-accent-soft: var(--learning-primary-soft);
   min-height: 100vh;
   color: var(--learning-ink);
   background:
@@ -46,6 +48,12 @@ body {
     var(--learning-bg);
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
+
+body[data-learning-page="fractions"] { --page-accent:#6557d9; --page-accent-soft:#eeebff; }
+body[data-learning-page="decimal-addition"] { --page-accent:#e7a20a; --page-accent-soft:#fff4d4; }
+body[data-learning-page="algebra-expressions"] { --page-accent:#158b7a; --page-accent-soft:#dcf7f1; }
+body[data-learning-page="equation-lab"] { --page-accent:#d65382; --page-accent-soft:#ffe7f0; }
+body[data-learning-page="coordinate-plane"] { --page-accent:#3478d4; --page-accent-soft:#e4f0ff; }
 
 button, select, input { font: inherit; }
 
@@ -102,6 +110,19 @@ input:focus-visible {
   box-shadow: 0 7px 16px rgba(101, 87, 217, .25);
 }
 
+.site-menu-button {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--learning-line);
+  border-radius: 12px;
+  padding: 9px 11px;
+  color: var(--learning-primary-dark);
+  background: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .site-nav {
   display: flex;
   align-items: center;
@@ -126,11 +147,11 @@ input:focus-visible {
 .site-nav a:hover { background: #f4f2ff; color: var(--learning-primary-dark); }
 
 .site-nav a[aria-current="page"] {
-  color: var(--learning-primary-dark);
-  background: var(--learning-primary-soft);
+  color: var(--page-accent);
+  background: var(--page-accent-soft);
 }
 
-.site-header__age {
+.site-star-count {
   margin-left: auto;
   flex: 0 0 auto;
   padding: 7px 10px;
@@ -139,6 +160,7 @@ input:focus-visible {
   background: #fff3cb;
   font-size: .8rem;
   font-weight: 800;
+  text-decoration: none;
 }
 
 /* Shared surfaces and controls across the five original apps. */
@@ -155,9 +177,36 @@ input:focus-visible {
 }
 
 .tab.active, .tabs button.on {
-  background: var(--learning-primary) !important;
+  background: var(--page-accent) !important;
   color: #fff !important;
 }
+
+body:not([data-learning-page="home"]) .btn,
+body:not([data-learning-page="home"]) button.primary,
+body:not([data-learning-page="home"]) button#checkBtn {
+  background: var(--page-accent);
+}
+
+.star-toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1200;
+  max-width: min(360px, calc(100% - 36px));
+  padding: 13px 17px;
+  border: 1px solid #efd36d;
+  border-radius: 16px;
+  color: #5f4700;
+  background: #fff7d7;
+  box-shadow: 0 16px 38px rgba(63, 48, 8, .18);
+  font-weight: 850;
+  opacity: 0;
+  transform: translateY(18px) scale(.96);
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.star-toast--show { opacity: 1; transform: translateY(0) scale(1); }
 
 .site-footer {
   width: min(980px, calc(100% - 32px));
@@ -172,16 +221,35 @@ input:focus-visible {
 .site-footer a { color: var(--learning-primary-dark); font-weight: 750; }
 
 @media (max-width: 850px) {
-  .site-header__inner { align-items: flex-start; flex-wrap: wrap; gap: 0 12px; padding-top: 9px; }
-  .site-nav { order: 3; width: 100%; }
-  .site-header__age { align-self: center; }
+  .site-header__inner { position: relative; min-height:64px; gap: 10px; }
+  .site-brand { margin-right:auto; }
+  .site-menu-button { display:inline-flex; }
+  .site-star-count { margin-left:0; }
+  .site-nav {
+    position:absolute;
+    top:calc(100% - 2px);
+    right:0;
+    left:0;
+    display:none;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+    padding:12px;
+    overflow:visible;
+    border:1px solid var(--learning-line);
+    border-radius:0 0 18px 18px;
+    background:#fff;
+    box-shadow:var(--learning-shadow);
+  }
+  .site-nav[data-open="true"] { display:grid; }
+  .site-nav a { white-space:normal; }
 }
 
 @media (max-width: 520px) {
   .site-header__inner { width: min(100% - 20px, 1120px); }
   .site-brand__text { font-size: .92rem; }
-  .site-header__age { display: none; }
-  .site-nav a { padding: 8px 10px; font-size: .84rem; }
+  .site-star-count { padding:7px 8px; }
+  .site-menu-button { padding:8px 9px; }
+  .site-nav a { padding:10px; font-size:.88rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Interaktive øvelser i at finde, aflæse og forbinde koordinater.">
 <title>Koordinatplanet · Elinas læringsunivers</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
   :root{
     --ink:#183153; --muted:#5d6b7a; --paper:#fbf6ea; --card:#ffffff;
@@ -251,6 +252,7 @@ findCanvas.addEventListener('click',e=>{
   const f=document.getElementById('findFeedback');
   if(got[0]===findTarget[0] && got[1]===findTarget[1]){
     findScore++; document.getElementById('findScore').textContent=`⭐ ${findScore} point`;
+    window.LearningUniverse?.earnStar('coordinate-plane','Punktet er fundet!');
     f.className='feedback good'; f.textContent=`Ja! ${pair(got)} er helt rigtigt. 🌟`;
     drawGrid(findCanvas,got);
     setTimeout(newFind,850);
@@ -285,6 +287,7 @@ document.getElementById('checkRead').onclick=()=>{
   const f=document.getElementById('readFeedback');
   if(x===readPoint[0] && y===readPoint[1]){
     readScore++; document.getElementById('readScore').textContent=`⭐ ${readScore} point`;
+    window.LearningUniverse?.earnStar('coordinate-plane','Koordinatet er aflæst!');
     f.className='feedback good'; f.textContent=`Perfekt! Punktet er ${pair(readPoint)}. 🌟`;
     setTimeout(newRead,900);
   }else{
@@ -346,6 +349,7 @@ connectCanvas.addEventListener('click',e=>{
     progress.push(got); drawGrid(connectCanvas,null,progress);
     if(progress.length===arr.length){
       f.className='feedback good'; f.textContent='Færdig! Flot! En ny opgave kommer om et øjeblik. 🌟';
+      window.LearningUniverse?.earnStar('coordinate-plane','Alle punkter blev forbundet!');
       document.getElementById('nextPoint').textContent='Færdig';
       document.getElementById('celebrate').style.display='block';
       setTimeout(newConnectChallenge,1200);

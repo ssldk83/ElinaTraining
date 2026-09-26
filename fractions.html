@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Sammenlign brøker visuelt og se, hvor stor en del af helheden de fylder.">
   <title>Forstå brøker · Elinas læringsunivers</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
     :root {
       --bg: #f7f7fb;
@@ -353,6 +354,14 @@
       state["n" + side] = old;
     }
 
+    let fractionExplorations = 0;
+    function markExplored() {
+      fractionExplorations++;
+      if (fractionExplorations % 3 === 0) {
+        window.LearningUniverse?.earnStar("fractions", "Du har udforsket tre brøker!");
+      }
+    }
+
     fillSelect($("d1"), 2, 12, state.d1);
     fillSelect($("d2"), 2, 12, state.d2);
     fillSelect($("n1"), 1, state.d1, state.n1);
@@ -363,11 +372,13 @@
         state["d" + side] = Number(e.target.value);
         setNumeratorOptions(side);
         update();
+        markExplored();
       });
 
       $("n" + side).addEventListener("change", e => {
         state["n" + side] = Number(e.target.value);
         update();
+        markExplored();
       });
 
       $("bar" + side).addEventListener("click", () => {

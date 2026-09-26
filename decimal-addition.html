@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Øv decimaladdition i kolonner, ét ciffer ad gangen.">
 <title>Decimaladdition · Elinas læringsunivers</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
   :root{
     --bg:#f6f7fb;
@@ -499,6 +500,7 @@ function check(){
     entered.tenths===d.tenths &&
     entered.hundredths===d.hundredths
   ){
+    const firstTime = !solved.has(current);
     solved.add(current);
     $('#feedback').style.color = 'var(--ok)';
     $('#feedback').textContent = `Rigtigt! ${fmt(result)} 🎉`;
@@ -507,6 +509,7 @@ function check(){
     void $('#columnCard').offsetWidth;
     $('#columnCard').classList.add('celebrate');
     updateProgress();
+    if(firstTime) window.LearningUniverse?.earnStar('decimal-addition','Kommaet sad helt rigtigt!');
   }else{
     $('#feedback').style.color = 'var(--bad)';
     $('#feedback').textContent = 'Ikke helt. Tjek kolonnerne fra højre.';
