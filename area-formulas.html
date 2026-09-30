@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Øv arealformler for kvadrat, rektangel og trekant med forklaringer og opgaver.">
+<title>Arealformler · Elinas læringsunivers</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared.css">
+<script defer src="shared.js"></script>
+<style>
+  .area-wrap{width:min(1000px,calc(100% - 32px));margin:32px auto 0}
+  .area-hero,.area-panel,.formula-card{background:#fff;border:1px solid var(--learning-line);border-radius:24px;box-shadow:var(--learning-shadow)}
+  .area-hero{padding:clamp(22px,5vw,38px);background:linear-gradient(135deg,#fff,#eaf8f4)}
+  .area-kicker{color:#087565;font-weight:850;letter-spacing:.06em;text-transform:uppercase;font-size:.8rem}
+  h1{margin:8px 0;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:-.04em}
+  .area-hero p{max-width:700px;margin:0;color:var(--learning-muted);line-height:1.6}
+  .formula-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+  .formula-card{padding:20px}
+  .formula-card svg{display:block;width:100%;height:125px;margin-bottom:9px}
+  .formula-card h2{margin:0 0 6px;font-size:1.2rem}
+  .formula{display:block;margin:0 0 8px;color:#087565;font-weight:900;font-size:1.4rem}
+  .formula-card p{margin:0;color:var(--learning-muted);line-height:1.5}
+  .area-panel{padding:clamp(20px,4vw,30px);margin-bottom:18px}
+  .area-panel h2{margin:0 0 6px}
+  .area-panel>p{color:var(--learning-muted);margin:0 0 16px;line-height:1.5}
+  .progress-line{display:flex;justify-content:space-between;gap:12px;font-weight:800;color:#087565;margin-bottom:12px}
+  .progress-track{height:9px;border-radius:99px;background:#dceee9;overflow:hidden;margin-bottom:20px}
+  .progress-track span{display:block;width:0;height:100%;background:#119b82;transition:width .2s}
+  .prompt{font-size:clamp(1.2rem,3vw,1.55rem);font-weight:800;line-height:1.4;margin-bottom:16px}
+  .choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .choice{min-height:62px;padding:12px 16px;border:2px solid #d8e9e4;border-radius:15px;background:#fbfffe;color:var(--learning-ink);font:inherit;font-weight:750;text-align:left;cursor:pointer}
+  .choice:hover,.choice:focus-visible{border-color:#119b82;outline:none}
+  .choice[aria-pressed="true"]{border-color:#087565;background:#e5f8f2}
+  .choice:disabled{cursor:default}
+  .area-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:17px}
+  .area-button{border:0;border-radius:12px;padding:11px 17px;background:#087565;color:#fff;font:inherit;font-weight:800;cursor:pointer}
+  .area-button:disabled{opacity:.5;cursor:default}
+  .area-button.secondary{background:#e5f3ef;color:#075d51}
+  .feedback{min-height:52px;margin-top:15px;padding:12px 15px;border-radius:14px;background:#f1f5f5;line-height:1.5}
+  .feedback.good{background:#e2f7eb;color:#17633f}.feedback.try{background:#fff3de;color:#75500b}
+  .example{padding:16px;border-radius:15px;background:#f5f8ff;line-height:1.6}
+  @media(max-width:700px){.formula-grid{grid-template-columns:1fr}.formula-card svg{height:105px}.choices{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="area-wrap">
+  <section class="area-hero">
+    <span class="area-kicker">Geometri · areal</span>
+    <h1>Forstå arealformler</h1>
+    <p>Lær, hvad bogstaverne betyder, og hvorfor trekantens areal er halvdelen af et rektangels. Øv dig på de seks spørgsmål fra arket.</p>
+  </section>
+
+  <section class="formula-grid" aria-label="Formeloversigt">
+    <article class="formula-card">
+      <svg viewBox="0 0 220 125" role="img" aria-label="Kvadrat med siden s"><rect x="65" y="12" width="95" height="95" rx="4" fill="#dff5ef" stroke="#087565" stroke-width="3"/><text x="107" y="121" fill="#075d51" font-size="18" font-weight="bold">s</text><text x="47" y="66" fill="#075d51" font-size="18" font-weight="bold">s</text></svg>
+      <h2>Kvadrat</h2><span class="formula">A = s · s = s²</span><p>s er sidens længde. Alle fire sider er lige lange.</p>
+    </article>
+    <article class="formula-card">
+      <svg viewBox="0 0 220 125" role="img" aria-label="Rektangel med længde l og bredde b"><rect x="32" y="20" width="158" height="78" rx="4" fill="#e9f1ff" stroke="#3478d4" stroke-width="3"/><text x="108" y="118" fill="#22589b" font-size="18" font-weight="bold">l</text><text x="13" y="65" fill="#22589b" font-size="18" font-weight="bold">b</text></svg>
+      <h2>Rektangel</h2><span class="formula">A = l · b</span><p>l er længden, og b er bredden.</p>
+    </article>
+    <article class="formula-card">
+      <svg viewBox="0 0 220 125" role="img" aria-label="Trekant med grundlinje g og lodret højde h"><polygon points="33,99 189,99 111,18" fill="#fff0e4" stroke="#d17538" stroke-width="3"/><line x1="111" y1="18" x2="111" y2="99" stroke="#d17538" stroke-width="2" stroke-dasharray="5 4"/><text x="105" y="121" fill="#a24c1c" font-size="18" font-weight="bold">g</text><text x="118" y="67" fill="#a24c1c" font-size="18" font-weight="bold">h</text></svg>
+      <h2>Trekant</h2><span class="formula">A = g · h / 2</span><p>g er grundlinjen, og h er den lodrette højde til den.</p>
+    </article>
+  </section>
+
+  <section class="area-panel" aria-labelledby="quiz-title">
+    <h2 id="quiz-title">Træn spørgsmålene</h2>
+    <p>Vælg et svar. Ved et forkert svar får du et hint og kan prøve igen.</p>
+    <div class="progress-line"><span id="stepLabel">Spørgsmål 1 af 6</span><span id="scoreLabel">0 rigtige</span></div>
+    <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback" role="status" aria-live="polite">Vælg det svar, du tror er rigtigt.</div>
+    <div class="area-actions"><button class="area-button" id="next" type="button" hidden>Næste spørgsmål →</button><button class="area-button secondary" id="restart" type="button" hidden>Prøv igen</button></div>
+  </section>
+
+  <section class="area-panel" aria-labelledby="example-title">
+    <h2 id="example-title">Se et regneeksempel</h2>
+    <p>Brug formlen med tal, når du kender målene.</p>
+    <div class="example">En trekant har grundlinjen <strong>g = 6 cm</strong> og højden <strong>h = 4 cm</strong>.<br>A = 6 · 4 / 2 = <strong>12 cm²</strong>. Produktet 6 · 4 er 24 cm²; halvdelen er trekantens areal.</div>
+  </section>
+</main>
+<script>
+(() => {
+  const questions = [
+    {question:'a) Hvad står det store A for i de tre formler?', choices:['Areal','Antal sider','En vinkel','Omkreds'], correct:0, hint:'A fortæller, hvor stor en flade figuren dækker.', explain:'A står for areal: størrelsen af fladen inde i figuren.'},
+    {question:'b) Hvad står s for i kvadratets formel A = s · s?', choices:['Sidelængden','Summen af siderne','Arealet','En skrå linje'], correct:0, hint:'Et kvadrat har fire lige lange sider.', explain:'s er længden af én side i kvadratet.'},
+    {question:'c) Hvad står l og b for i rektanglets formel A = l · b?', choices:['Længde og bredde','Linje og bund','To vinkler','Længde og højde på en trekant'], correct:0, hint:'Se navnene på de to mål i diagrammet ovenfor.', explain:'l betyder længde, og b betyder bredde.'},
+    {question:'d) Hvad står g for i trekantens formel A = g · h / 2?', choices:['Grundlinjen','Gennemsnittet','Grader','Gange'], correct:0, hint:'Det er den side, som højden måles vinkelret på.', explain:'g er grundlinjen: den valgte side, som højden h hører til.'},
+    {question:'e) Hvad står h for i trekantens formel A = g · h / 2?', choices:['Højden','Halvdelen','Hypotenusen','Hjørnet'], correct:0, hint:'Den måles vinkelret fra grundlinjen til den modsatte spids.', explain:'h er højden, målt vinkelret på grundlinjen.'},
+    {question:'f) Hvorfor deles produktet g · h med 2 i en trekant?', choices:['Fordi trekanten fylder halvdelen af et rektangel med samme grundlinje og højde','Fordi trekanten har tre sider','Fordi højden altid er halvdelen af grundlinjen','Fordi areal måles i cm²'], correct:0, hint:'Forestil dig to ens trekanter sat sammen til et parallelogram.', explain:'To ens trekanter kan danne et parallelogram med areal g · h. Én trekant har halvdelen.'}
+  ];
+  const $ = id => document.getElementById(id);
+  let index=0, right=0, solved=false;
+  function shuffleAnswers(q){
+    return q.choices.map((label,i)=>({label,correct:i===q.correct})).sort(()=>Math.random()-.5);
+  }
+  function show(){
+    const q=questions[index], options=shuffleAnswers(q);
+    solved=false;
+    $('stepLabel').textContent=`Spørgsmål ${index+1} af ${questions.length}`;
+    $('scoreLabel').textContent=`${right} rigtige`;
+    $('progressFill').style.width=`${index/questions.length*100}%`;
+    $('prompt').textContent=q.question;
+    $('feedback').className='feedback';$('feedback').textContent='Vælg det svar, du tror er rigtigt.';
+    $('next').hidden=true;$('restart').hidden=true;
+    $('choices').replaceChildren();
+    options.forEach(option=>{
+      const button=document.createElement('button');button.type='button';button.className='choice';button.textContent=option.label;
+      button.addEventListener('click',()=>{
+        if(solved)return;
+        if(option.correct){
+          solved=true;right++;
+          button.setAttribute('aria-pressed','true');
+          $('choices').querySelectorAll('button').forEach(b=>b.disabled=true);
+          $('feedback').className='feedback good';$('feedback').textContent=`Rigtigt! ${q.explain}`;
+          $('scoreLabel').textContent=`${right} rigtige`;
+          $('progressFill').style.width=`${(index+1)/questions.length*100}%`;
+          window.LearningUniverse?.earnStar('area-formulas','Arealspørgsmål løst!');
+          if(index===questions.length-1){
+            $('feedback').textContent+=` Du klarede ${right} af ${questions.length} spørgsmål. Flot arbejdet!`;
+            $('restart').hidden=false;
+          }else $('next').hidden=false;
+        }else{
+          $('feedback').className='feedback try';$('feedback').textContent=`Prøv igen. Tip: ${q.hint}`;
+        }
+      });
+      $('choices').append(button);
+    });
+  }
+  $('next').addEventListener('click',()=>{index++;show();});
+  $('restart').addEventListener('click',()=>{index=0;right=0;show();});
+  show();
+})();
+</script>
+</body>
+</html>

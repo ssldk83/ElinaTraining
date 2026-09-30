@@ -4,7 +4,8 @@
     { id: "decimal-addition", file: "decimal-addition.html", label: "Decimaltal", icon: "+" },
     { id: "algebra-expressions", file: "algebra-expressions.html", label: "Algebra", icon: "a" },
     { id: "equation-lab", file: "equation-lab.html", label: "Ligninger", icon: "x" },
-    { id: "coordinate-plane", file: "coordinate-plane.html", label: "Koordinater", icon: "⌖" }
+    { id: "coordinate-plane", file: "coordinate-plane.html", label: "Koordinater", icon: "⌖" },
+    { id: "area-formulas", file: "area-formulas.html", label: "Areal", icon: "▦" }
   ];
 
   const challenges = [
@@ -12,7 +13,8 @@
     "Løs tre decimalopgaver og hold øje med kommaet.",
     "Få tre algebraopgaver rigtige i træk.",
     "Find det skjulte tal i to forskellige ligninger.",
-    "Find tre punkter uden at bytte om på x og y."
+    "Find tre punkter uden at bytte om på x og y.",
+    "Forklar symbolerne i tre arealformler."
   ];
 
   const storageKey = "elina-learning-progress-v1";

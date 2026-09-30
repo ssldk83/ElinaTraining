@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Fem interaktive matematikapps samlet i Elinas læringsunivers.">
+  <meta name="description" content="Seks interaktive matematikapps samlet i Elinas læringsunivers.">
   <title>Elinas læringsunivers</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="shared.css">
@@ -31,6 +31,7 @@
     .app-card[data-app="algebra-expressions"] { --card-accent:#158b7a; --card-soft:#dcf7f1; }
     .app-card[data-app="equation-lab"] { --card-accent:#d65382; --card-soft:#ffe7f0; }
     .app-card[data-app="coordinate-plane"] { --card-accent:#3478d4; --card-soft:#e4f0ff; }
+    .app-card[data-app="area-formulas"] { --card-accent:#087565; --card-soft:#dff5ef; }
     .app-card:nth-child(4), .app-card:nth-child(5) { grid-column:span 3; }
     .app-card:hover { transform:translateY(-4px); box-shadow:0 18px 42px rgba(43,35,92,.14); }
     .app-card__top { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
@@ -52,7 +53,7 @@
       <div>
         <span class="eyebrow">Matematik · lær i dit eget tempo</span>
         <h1 id="home-title">Træn, prøv og forstå.</h1>
-        <p class="lead">Fem små læringsapps, der gør matematik synlig og lader dig øve i dit eget tempo.</p>
+        <p class="lead">Seks små læringsapps, der gør matematik synlig og lader dig øve i dit eget tempo.</p>
       </div>
       <aside class="daily-card">
         <div class="daily-card__label"><span aria-hidden="true">✦</span> Dagens 5-minutters udfordring</div>
@@ -64,7 +65,7 @@
 
     <section class="progress-overview" id="min-fremgang" aria-label="Din fremgang">
       <div class="progress-stat"><span class="progress-stat__icon" aria-hidden="true">⭐</span><div><strong><span data-total-stars>0</span> stjerner</strong><span>samlet i dit univers</span></div></div>
-      <div class="progress-stat"><span class="progress-stat__icon" aria-hidden="true">✓</span><div><strong><span data-apps-explored>0</span> af 5</strong><span>emner udforsket</span></div></div>
+      <div class="progress-stat"><span class="progress-stat__icon" aria-hidden="true">✓</span><div><strong><span data-apps-explored>0</span> af 6</strong><span>emner udforsket</span></div></div>
       <div class="progress-stat"><span class="progress-stat__icon" aria-hidden="true">🔥</span><div><strong><span data-learning-streak>0</span> dage</strong><span>din læringsstreak</span></div></div>
     </section>
 
@@ -103,6 +104,13 @@
         <p>Find, aflæs og forbind punkter i et interaktivt koordinatsystem.</p>
         <span class="app-card__action" data-action-app="coordinate-plane">Udforsk koordinater →</span>
         <span class="app-card__track" aria-hidden="true"><span data-bar-app="coordinate-plane"></span></span>
+      </a>
+      <a class="app-card" data-app="area-formulas" href="area-formulas.html">
+        <span class="app-card__top"><span class="app-card__icon" aria-hidden="true">▦</span><span class="app-card__status" data-progress-app="area-formulas">Ny</span></span>
+        <h2>Arealformler</h2>
+        <p>Forstå bogstaverne i formler for kvadrat, rektangel og trekant.</p>
+        <span class="app-card__action" data-action-app="area-formulas">Øv areal →</span>
+        <span class="app-card__track" aria-hidden="true"><span data-bar-app="area-formulas"></span></span>
       </a>
     </section>
   </main>
