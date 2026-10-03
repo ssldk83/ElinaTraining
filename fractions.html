@@ -213,6 +213,23 @@
         text-align: center;
       }
     }
+
+    .practice { max-width:980px; margin:0 auto 28px; padding:24px; background:white; border:1px solid var(--line); border-radius:16px; }
+    .practice h2 { margin-top:0; }
+    .practice-options, .practice-answers { display:flex; flex-wrap:wrap; gap:16px; align-items:center; }
+    .practice-options label { flex:1; min-width:180px; }
+    .practice-question { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:24px; margin:24px 0; font-size:28px; }
+    .practice-question svg { width:170px; height:170px; }
+    .practice-answers { justify-content:center; }
+    .practice-fraction { display:grid; gap:6px; width:90px; }
+    .practice-fraction label:first-child { border-bottom:2px solid var(--text); padding-bottom:8px; }
+    .practice-answers > label { width:160px; }
+    .practice button { padding:12px 18px; border:1px solid var(--line); border-radius:10px; background:#eef2ff; font:inherit; cursor:pointer; }
+    .practice button:disabled { opacity:.5; cursor:default; }
+    .practice-actions { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:20px; }
+    #practiceFeedback { min-height:2.5em; text-align:center; margin:18px 0 0; }
+    [hidden] { display:none !important; }
+
   </style>
   <link rel="stylesheet" href="shared.css">
   <script defer src="shared.js"></script>
@@ -223,6 +240,46 @@
     <div class="subtitle">
       Se brøker som decimaltal, eller skriv fx 0,6 og se 6/10.
     </div>
+
+
+    <section class="practice" aria-labelledby="practiceTitle">
+      <h2 id="practiceTitle">Øv dig: Brøker og decimaltal</h2>
+      <div class="practice-options">
+        <label>Opgavetype
+          <select id="practiceMode">
+            <option value="picture">Figur → brøk og decimaltal</option>
+            <option value="decimal">Brøk → decimaltal</option>
+            <option value="fraction">Decimaltal → brøk</option>
+          </select>
+        </label>
+        <label>Niveau
+          <select id="practiceLevel">
+            <option value="easy">Tiendedele og femtedele</option>
+            <option value="mixed">Blandet: 2, 4, 5, 10 og 20 dele</option>
+          </select>
+        </label>
+      </div>
+      <p id="practiceProgress" role="status"></p>
+      <p id="practiceInstruction"></p>
+      <div class="practice-question" id="practiceQuestion"></div>
+      <form id="practiceForm" novalidate>
+        <div class="practice-answers">
+          <div class="practice-fraction" id="practiceFractionFields">
+            <label>Tæller<input id="answerNumerator" inputmode="numeric" type="text" autocomplete="off" aria-describedby="practiceFeedback"></label>
+            <label>Nævner<input id="answerDenominator" inputmode="numeric" type="text" autocomplete="off" aria-describedby="practiceFeedback"></label>
+          </div>
+          <span id="practiceEquals" aria-hidden="true">=</span>
+          <label id="practiceDecimalField">Decimaltal<input id="answerDecimal" inputmode="decimal" type="text" autocomplete="off" placeholder="Fx 0,6" aria-describedby="practiceFeedback"></label>
+        </div>
+        <div class="practice-actions">
+          <button type="submit" id="practiceCheck">Tjek svar</button>
+          <button type="button" id="practiceHint">Tip</button>
+          <button type="button" id="practiceNext" disabled>Næste opgave →</button>
+        </div>
+        <p id="practiceFeedback" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <h2 style="text-align:center">Udforsk selv</h2>
 
     <section class="compare-row">
       <div class="card">
@@ -455,6 +512,75 @@
     
 
     update();
+
+    const practice = { n:6, d:10, round:0, correct:0, solved:false, previous:"" };
+    const decimalText = (n,d) => (n/d).toLocaleString("da-DK");
+    function circleHTML(n,d) {
+      let paths = "";
+      for (let i=0; i<d; i++) {
+        const a = 2*Math.PI*i/d-Math.PI/2;
+        const b = 2*Math.PI*(i+1)/d-Math.PI/2;
+        paths += `<path d="M 90 90 L ${90+80*Math.cos(a)} ${90+80*Math.sin(a)} A 80 80 0 0 1 ${90+80*Math.cos(b)} ${90+80*Math.sin(b)} Z" fill="${i<n ? "#84b547" : "#fff"}" stroke="#374151" stroke-width="2"/>`;
+      }
+      return `<svg viewBox="0 0 180 180" role="img" aria-label="${n} af ${d} lige store dele er farvet">${paths}</svg>`;
+    }
+    function newPractice(reset=false) {
+      if (reset || practice.round === 10) { practice.round=0; practice.correct=0; }
+      const ds = $("practiceLevel").value === "mixed" ? [2,4,5,10,20] : [5,10];
+      let n,d,key;
+      do {
+        d=ds[Math.floor(Math.random()*ds.length)];
+        n=Math.floor(Math.random()*(d+1));
+        key=n+"/"+d;
+      } while (key===practice.previous);
+      Object.assign(practice,{n,d,round:practice.round+1,solved:false,previous:key});
+      const mode=$("practiceMode").value;
+      $("practiceFractionFields").hidden=mode==="decimal";
+      $("practiceDecimalField").hidden=mode==="fraction";
+      $("practiceEquals").hidden=mode!=="picture";
+      $("practiceInstruction").textContent=mode==="picture" ? "Hvor stor en del er farvet? Skriv både brøken og decimaltallet." : mode==="decimal" ? "Skriv brøken som et decimaltal. Brug gerne komma." : "Skriv decimaltallet som en brøk.";
+      $("practiceQuestion").innerHTML=mode==="picture" ? circleHTML(n,d) : mode==="decimal" ? fracHTML(n,d)+" = ?" : decimalText(n,d)+" = ?";
+      for (const id of ["answerNumerator","answerDenominator","answerDecimal"]) { $(id).value=""; $(id).disabled=false; }
+      $("practiceFeedback").textContent="";
+      $("practiceCheck").disabled=false;
+      $("practiceNext").disabled=true;
+      $("practiceNext").textContent=practice.round===10 ? "Start 10 nye opgaver" : "Næste opgave →";
+      $("practiceProgress").textContent=`Opgave ${practice.round} af 10 · ${practice.correct} løst`;
+    }
+    function checkPractice(e) {
+      e.preventDefault();
+      if(practice.solved) return;
+      const mode=$("practiceMode").value;
+      const a=$("answerNumerator").value.trim(), b=$("answerDenominator").value.trim();
+      const decimal=$("answerDecimal").value.trim();
+      const validFraction=/^\d{1,4}$/.test(a) && /^\d{1,4}$/.test(b) && Number(b)>0;
+      const validDecimal=/^\d+(?:[,.]\d+)?$/.test(decimal);
+      const fractionOK=validFraction && Number(a)*practice.d===practice.n*Number(b);
+      const decimalOK=validDecimal && Math.abs(Number(decimal.replace(",","."))-practice.n/practice.d)<1e-9;
+      if ((mode!=="decimal" && !validFraction) || (mode!=="fraction" && !validDecimal)) {
+        $("practiceFeedback").textContent="Udfyld felterne med tal. Nævneren skal være større end 0. Brug fx 0,6 som decimaltal.";
+        return;
+      }
+      if ((mode!=="decimal" && !fractionOK) || (mode!=="fraction" && !decimalOK)) {
+        $("practiceFeedback").textContent=mode==="picture" ? "Prøv igen. Tæl alle delene og derefter de farvede. Decimaltallet er tæller ÷ nævner." : "Prøv igen. Brøken og decimaltallet skal have samme værdi.";
+        return;
+      }
+      practice.solved=true; practice.correct++;
+      $("practiceFeedback").textContent=`Rigtigt! ${practice.n}/${practice.d} = ${decimalText(practice.n,practice.d)}.` + (practice.round===10 ? " Flot, du har løst alle 10 opgaver!" : "");
+      $("practiceProgress").textContent=`Opgave ${practice.round} af 10 · ${practice.correct} løst`;
+      $("practiceCheck").disabled=true; $("practiceNext").disabled=false;
+      for(const id of ["answerNumerator","answerDenominator","answerDecimal"]) $(id).disabled=true;
+      window.LearningUniverse?.earnStar("fractions","Du løste en brøkopgave!");
+    }
+    $("practiceForm").addEventListener("submit",checkPractice);
+    $("practiceNext").addEventListener("click",()=>newPractice());
+    $("practiceMode").addEventListener("change",()=>newPractice(true));
+    $("practiceLevel").addEventListener("change",()=>newPractice(true));
+    $("practiceHint").addEventListener("click",()=>{
+      $("practiceFeedback").textContent=$("practiceMode").value==="fraction" ? "Et ciffer efter kommaet er tiendedele. To cifre er hundrededele. Fx 0,7 = 7/10." : "Nævneren er alle delene, og tælleren er de farvede. Divider tælleren med nævneren for at finde decimaltallet.";
+    });
+    newPractice();
+
   </script>
 </body>
 </html>
