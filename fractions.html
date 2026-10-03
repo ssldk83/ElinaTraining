@@ -160,7 +160,7 @@
       gap: 6px;
     }
 
-    select {
+    select, input {
       width: 100%;
       padding: 7px 9px;
       border-radius: 9px;
@@ -187,6 +187,9 @@
 
     
 
+    .decimal-control { grid-column: 1 / -1; }
+    .decimal-feedback { color: #b91c1c; min-height: 1.2em; font-size: 13px; }
+    .decimal-value { font-size: 24px; margin-left: 12px; }
     .tip {
       text-align: center;
       margin-top: 22px;
@@ -218,7 +221,7 @@
   <main class="wrap">
     <h1>Forstå brøker</h1>
     <div class="subtitle">
-      Se på længden først. Tallene kommer bagefter.
+      Se brøker som decimaltal, eller skriv fx 0,6 og se 6/10.
     </div>
 
     <section class="compare-row">
@@ -227,7 +230,7 @@
           <span class="fraction">
             <span class="top" id="n1Text">4</span>
             <span class="bottom" id="d1Text">7</span>
-          </span>
+          </span><span class="decimal-value" id="decimal1Text"></span>
         </div>
 
         <div class="bar-shell" id="bar1" title="Klik for at afspille igen">
@@ -246,6 +249,11 @@
             Nævner
             <select id="d1"></select>
           </label>
+          <label class="decimal-control">
+            Skriv et decimaltal fra 0 til 1 (fx 0,6)
+            <input id="decimal1" type="text" inputmode="decimal" autocomplete="off" placeholder="0,6" aria-describedby="decimal1Feedback">
+            <span class="decimal-feedback" id="decimal1Feedback" role="status"></span>
+          </label>
         </div>
       </div>
 
@@ -254,7 +262,7 @@
           <span class="fraction">
             <span class="top" id="n2Text">2</span>
             <span class="bottom" id="d2Text">3</span>
-          </span>
+          </span><span class="decimal-value" id="decimal2Text"></span>
         </div>
 
         <div class="bar-shell" id="bar2" title="Klik for at afspille igen">
@@ -272,6 +280,11 @@
           <label>
             Nævner
             <select id="d2"></select>
+          </label>
+          <label class="decimal-control">
+            Skriv et decimaltal fra 0 til 1 (fx 0,6)
+            <input id="decimal2" type="text" inputmode="decimal" autocomplete="off" placeholder="0,6" aria-describedby="decimal2Feedback">
+            <span class="decimal-feedback" id="decimal2Feedback" role="status"></span>
           </label>
         </div>
       </div>
@@ -332,6 +345,42 @@
       return `<span class="fraction"><span class="top">${n}</span><span class="bottom">${d}</span></span>`;
     }
 
+    function formatDecimal(n, d) {
+      let remainder = d;
+      for (const factor of [2, 5]) {
+        while (remainder % factor === 0) remainder /= factor;
+      }
+      const exact = remainder === 1;
+      return (exact ? "= " : "≈ ") + (n / d).toLocaleString("da-DK", { maximumFractionDigits: 4 });
+    }
+
+    function applyDecimal(side) {
+      const input = $("decimal" + side);
+      const value = input.value.trim();
+      if (!/^(?:0(?:[,.]\d{1,2})?|1(?:[,.]0{1,2})?)$/.test(value)) {
+        $("decimal" + side + "Feedback").textContent = "Skriv et tal fra 0 til 1 med højst to decimaler, fx 0,6.";
+        input.setAttribute("aria-invalid", "true");
+        return;
+      }
+      const normalized = value.replace(",", ".");
+      const digits = (normalized.split(".")[1] || "").length;
+      const d = digits ? 10 ** digits : 10;
+      const n = Math.round(Number(normalized) * d);
+      state["n" + side] = n;
+      state["d" + side] = d;
+      fillSelect($("d" + side), 2, 12, d);
+      if (d > 12) {
+        const option = document.createElement("option");
+        option.value = d;
+        option.textContent = d;
+        option.selected = true;
+        $("d" + side).appendChild(option);
+      }
+      setNumeratorOptions(side);
+      update();
+      markExplored();
+    }
+
     function update() {
       for (const side of [1, 2]) {
         const n = state["n" + side];
@@ -343,6 +392,10 @@
         $("fill" + side).style.width = pct + "%";
         drawSegments($("segments" + side), d);
         $("meaning" + side).textContent = words(n, d);
+        $("decimal" + side + "Text").textContent = formatDecimal(n, d);
+        $("decimal" + side).value = (n / d).toLocaleString("da-DK", { maximumFractionDigits: 4 });
+        $("decimal" + side).removeAttribute("aria-invalid");
+        $("decimal" + side + "Feedback").textContent = "";
       }
     }
 
@@ -350,7 +403,7 @@
       const d = state["d" + side];
       const select = $("n" + side);
       const old = Math.min(state["n" + side], d);
-      fillSelect(select, 1, d, old);
+      fillSelect(select, 0, d, old);
       state["n" + side] = old;
     }
 
@@ -364,10 +417,17 @@
 
     fillSelect($("d1"), 2, 12, state.d1);
     fillSelect($("d2"), 2, 12, state.d2);
-    fillSelect($("n1"), 1, state.d1, state.n1);
-    fillSelect($("n2"), 1, state.d2, state.n2);
+    fillSelect($("n1"), 0, state.d1, state.n1);
+    fillSelect($("n2"), 0, state.d2, state.n2);
 
     for (const side of [1, 2]) {
+      $("decimal" + side).addEventListener("change", () => applyDecimal(side));
+      $("decimal" + side).addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          applyDecimal(side);
+        }
+      });
       $("d" + side).addEventListener("change", e => {
         state["d" + side] = Number(e.target.value);
         setNumeratorOptions(side);
